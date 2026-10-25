@@ -34,13 +34,13 @@ otRenderTasks=function(){
  elements.forEach((el,i)=>{
   const t=otDraft.tasks[i],extras=init(t);
   const area=document.createElement('section');area.className='ot-extras';
-  let html='<details><summary>Recursos, repuestos, personal, terceros y adjuntos</summary><div>';
+  let html='<details open><summary>Adjuntos, recursos, repuestos, personal y terceros</summary><div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" '+(t.adjuntoObligatorio?'checked':'')+' onchange="otTaskChange(\''+t.id+'\',\'adjuntoObligatorio\',this.checked)"> Adjunto obligatorio para finalizar esta subtarea</label>';
   for(const [kind,labels] of Object.entries(defs)){
     html+='<h4>'+({recursos:'Recursos adicionales',repuestos:'Repuestos e insumos',personal:'Personal de apoyo',terceros:'Servicios de terceros'}[kind])+'</h4>';
     html+=extras[kind].map((x,n)=>'<div class="ot-extras-row"><label>'+labels[0]+'<input value="'+safe(x.descripcion)+'" oninput="otExtraSet(\''+t.id+'\',\''+kind+'\','+n+',\'descripcion\',this.value)" placeholder="Buscar o escribir"></label><label>'+labels[1]+'<input type="number" min="0" value="'+(kind==='terceros'?x.costo:x.cantidad)+'" oninput="otExtraSet(\''+t.id+'\',\''+kind+'\','+n+',\''+(kind==='terceros'?'costo':'cantidad')+'\',this.value)"></label>'+(kind==='repuestos'?'<label>'+labels[2]+'<input type="number" min="0" value="'+x.costo+'" oninput="otExtraSet(\''+t.id+'\',\''+kind+'\','+n+',\'costo\',this.value)"></label>':'')+'<button type="button" class="button" onclick="otExtraRemove(\''+t.id+'\',\''+kind+'\','+n+')">Quitar</button></div>').join('');
     html+='<button type="button" class="button" onclick="otExtraAdd(\''+t.id+'\',\''+kind+'\')">+ Añadir</button>';
   }
-  html+='<h4>Documentos adjuntos</h4><p class="muted">Fotos y PDF pequeños para pruebas; en producción se almacenarán en Supabase Storage.</p><input type="file" accept=".png,.jpg,.jpeg,.pdf" multiple onchange="otExtraFile(\''+t.id+'\',this.files)">';
+  html+='<h4>Documentos adjuntos (también durante ejecución)</h4><p class="muted">Fotos y PDF pequeños para pruebas; en producción se almacenarán en Supabase Storage.</p><input type="file" accept=".png,.jpg,.jpeg,.pdf" multiple onchange="otExtraFile(\''+t.id+'\',this.files)">';
   html+=extras.adjuntos.map((a,n)=>'<p>📎 '+safe(a.nombre)+' <button type="button" class="button" onclick="otExtraFileRemove(\''+t.id+'\','+n+')">Quitar</button></p>').join('');
   html+='</div></details>';
   area.innerHTML=html;el.append(area);
