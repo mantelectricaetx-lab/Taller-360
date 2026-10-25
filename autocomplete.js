@@ -7,10 +7,10 @@ const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 function suggestions(el){
 const label=norm([el.name,el.id,el.placeholder,el.closest('label')?.textContent].join(' '));
 let values=[];
-const clients=window.db?.clients||[];
-const vehicles=window.db?.vehicles||[];
-const plans=window.db?.plans||[];
-const ots=window.db?.ots||[];
+const clients=(typeof db !== 'undefined' ? db : {})?.clients||[];
+const vehicles=(typeof db !== 'undefined' ? db : {})?.vehicles||[];
+const plans=(typeof db !== 'undefined' ? db : {})?.plans||[];
+const ots=(typeof db !== 'undefined' ? db : {})?.ots||[];
 if(/cliente|propietario|nombre|razon|contacto/.test(label))values.push(...clients.map(x=>x.nombre));
 if(/patente|vehiculo|modelo|marca|motor|vin/.test(label))values.push(...vehicles.flatMap(x=>[x.patente,x.marca,x.modelo,x.marca+' '+x.modelo]));
 if(/rut/.test(label))values.push(...clients.map(x=>x.rut));
