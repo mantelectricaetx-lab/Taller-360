@@ -27,6 +27,25 @@ window.otExtraFile=async function(id,files){
  otRenderTasks();
 };
 window.otExtraFileRemove=function(id,index){const t=task(id);if(!t)return;init(t).adjuntos.splice(index,1);otRenderTasks()};
+
+window.otFindExtraStaff=async function(btn,id,n){
+ const row=btn.closest('.ot-extras-row');const q=row?.querySelector('input')?.value||'';
+ const existing=row.querySelector('.ot-people-results');if(existing)existing.remove();
+ const box=document.createElement('div');box.className='ot-people-results ot-options';box.style.width='100%';box.textContent='Buscando personal real...';row.append(box);
+ try{
+  const found=await window.T360TechSearch.search(q);
+  box.replaceChildren();
+  if(!found.length){box.textContent='No se encontró personal activo en Supabase.';return}
+  for(const person of found){
+   const b=document.createElement('button');b.type='button';b.className='ot-option';b.textContent=person.nombre+' · '+(person.cargo||person.especialidad||'');
+   b.onclick=()=>{
+    const t=task(id);if(!t)return;const r=init(t).personal[n];if(!r)return;
+    r.descripcion=person.nombre;r.personalId=person.id;row.querySelector('input').value=person.nombre;
+    box.textContent='Seleccionado de Supabase: '+person.nombre;
+   };box.append(b);
+  }
+ }catch(err){box.textContent=err.message}
+};
 const orig=otRenderTasks;
 otRenderTasks=function(){
  orig();
@@ -37,7 +56,7 @@ otRenderTasks=function(){
   let html='<details open><summary>Adjuntos, recursos, repuestos, personal y terceros</summary><div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" '+(t.adjuntoObligatorio?'checked':'')+' onchange="otTaskChange(\''+t.id+'\',\'adjuntoObligatorio\',this.checked)"> Adjunto obligatorio para finalizar esta subtarea</label>';
   for(const [kind,labels] of Object.entries(defs)){
     html+='<h4>'+({recursos:'Recursos adicionales',repuestos:'Repuestos e insumos',personal:'Personal de apoyo',terceros:'Servicios de terceros'}[kind])+'</h4>';
-    html+=extras[kind].map((x,n)=>'<div class="ot-extras-row"><label>'+labels[0]+'<input value="'+safe(x.descripcion)+'" oninput="otExtraSet(\''+t.id+'\',\''+kind+'\','+n+',\'descripcion\',this.value)" placeholder="Buscar o escribir"></label><label>'+labels[1]+'<input type="number" min="0" value="'+(kind==='terceros'?x.costo:x.cantidad)+'" oninput="otExtraSet(\''+t.id+'\',\''+kind+'\','+n+',\''+(kind==='terceros'?'costo':'cantidad')+'\',this.value)"></label>'+(kind==='repuestos'?'<label>'+labels[2]+'<input type="number" min="0" value="'+x.costo+'" oninput="otExtraSet(\''+t.id+'\',\''+kind+'\','+n+',\'costo\',this.value)"></label>':'')+'<button type="button" class="button" onclick="otExtraRemove(\''+t.id+'\',\''+kind+'\','+n+')">Quitar</button></div>').join('');
+    html+=extras[kind].map((x,n)=>'<div class="ot-extras-row"><label>'+labels[0]+'<input value="'+safe(x.descripcion)+'" oninput="otExtraSet(\''+t.id+'\',\''+kind+'\','+n+',\'descripcion\',this.value)" placeholder="Buscar o escribir"></label><label>'+labels[1]+'<input type="number" min="0" value="'+(kind==='terceros'?x.costo:x.cantidad)+'" oninput="otExtraSet(\''+t.id+'\',\''+kind+'\','+n+',\''+(kind==='terceros'?'costo':'cantidad')+'\',this.value)"></label>'+(kind==='repuestos'?'<label>'+labels[2]+'<input type="number" min="0" value="'+x.costo+'" oninput="otExtraSet(\''+t.id+'\',\''+kind+'\','+n+',\'costo\',this.value)"></label>':'')+(kind==='personal'?'<button type="button" class="button" onclick="otFindExtraStaff(this,\''+t.id+'\','+n+')">Buscar en Supabase</button>':'')+'<button type="button" class="button" onclick="otExtraRemove(\''+t.id+'\',\''+kind+'\','+n+')">Quitar</button></div>').join('');
     html+='<button type="button" class="button" onclick="otExtraAdd(\''+t.id+'\',\''+kind+'\')">+ Añadir</button>';
   }
   html+='<h4>Documentos adjuntos (también durante ejecución)</h4><p class="muted">Fotos y PDF pequeños para pruebas; en producción se almacenarán en Supabase Storage.</p><input type="file" accept=".png,.jpg,.jpeg,.pdf" multiple onchange="otExtraFile(\''+t.id+'\',this.files)">';
