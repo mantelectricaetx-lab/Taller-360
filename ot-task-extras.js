@@ -3,7 +3,7 @@
 function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function task(id){return otDraft.tasks.find(t=>t.id===id)}
 function init(t){t.extras??={recursos:[],repuestos:[],personal:[],terceros:[],adjuntos:[]};return t.extras}
-const defs={recursos:['Recurso / equipo','Cantidad'],repuestos:['Repuesto / insumo','Cantidad','Costo unitario (CLP)'],personal:['Personal de apoyo','Horas'],terceros:['Proveedor / trabajo','Costo estimado (CLP)']};
+const defs={repuestos:['Repuesto / insumo','Cantidad','Costo unitario (CLP)'],personal:['Personal de apoyo','Horas'],terceros:['Proveedor / trabajo','Costo estimado (CLP)']};
 window.otExtraAdd=function(id,kind){
  const t=task(id);if(!t)return;const e=init(t);
  e[kind].push({descripcion:'',cantidad:1,costo:0});
