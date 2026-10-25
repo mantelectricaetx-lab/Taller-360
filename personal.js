@@ -8,7 +8,10 @@ async function ctx(){
  const {data:{user}}=await sb.auth.getUser();
  if(!user)throw Error('Inicia sesión en Supabase para administrar técnicos.');
  const {data,error}=await sb.schema('rubinstein').from('usuarios').select('taller_id,activo').eq('id',user.id).single();
- if(error||!data?.activo||!data.taller_id)throw Error('No se pudo verificar el taller del usuario. Comprueba permisos RLS.');
+ if(error)throw Error('Error al consultar rubinstein.usuarios: '+error.message+' (código '+(error.code||'sin código')+'). Revisa Data API y políticas RLS.');
+ if(!data)throw Error('La cuenta autenticada no tiene una ficha visible en rubinstein.usuarios.');
+ if(!data.activo)throw Error('El usuario está inactivo.');
+ if(!data.taller_id)throw Error('El usuario no tiene taller_id asignado.');
  return data.taller_id;
 }
 async function load(){
