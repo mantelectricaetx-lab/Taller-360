@@ -35,7 +35,7 @@ function form(p={}){
  el.innerHTML='<div class="card"><div class="row spread"><h3>'+(editing?'Editar':'Nuevo')+' trabajador</h3><button class="button" type="button" id="staff-close">✕</button></div><form id="staff-form"><div class="grid">'+[['nombre','Nombre completo'],['cargo','Cargo'],['especialidad','Especialidad'],['telefono','Teléfono']].map(([k,l])=>'<label class="field">'+l+'<input name="'+k+'" '+(k==='nombre'?'required':'')+' value="'+clean(p[k]||'')+'"></label>').join('')+'</div><label class="field">Estado<select name="activo"><option value="true" '+(p.activo!==false?'selected':'')+'>Activo</option><option value="false" '+(p.activo===false?'selected':'')+'>Inactivo</option></select></label><p id="staff-msg" role="status"></p><button class="button primary" type="submit">Guardar trabajador</button></form></div>';
  el.querySelector('#staff-close').onclick=()=>el.replaceChildren();
  el.querySelector('form').onsubmit=async e=>{
- e.preventDefault();const f=e.target;const payload={nombre:f.nombre.value.trim(),cargo:f.cargo.value.trim(),especialidad:f.especialidad.value.trim(),telefono:f.telefono.value.trim(),activo:f.activo.value==='true'};
+ e.preventDefault();const f=e.target;const get=k=>f.elements.namedItem(k).value;const payload={nombre:get('nombre').trim(),cargo:get('cargo').trim(),especialidad:get('especialidad').trim(),telefono:get('telefono').trim(),activo:get('activo')==='true'};
  try{
  if(!myTaller)myTaller=await ctx();
  let response;
