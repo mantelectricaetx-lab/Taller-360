@@ -30,6 +30,8 @@ const oldRender=window.planRenderEditor;
 window.planRenderEditor=function(edit=false){
  oldRender(edit);
  const form=document.getElementById('plan-v2-form'),p=window.planDraft;
+ p.kmInicio??={};p.inicio??=new Date().toISOString();
+ form.addEventListener('submit',()=>{for(const box of form.querySelectorAll('[data-plan-vehicle]:checked')){const id=box.value;if(p.kmInicio[id]==null){const v=vehicle(id);if(v)p.kmInicio[id]=Number(v.km)||0}}},true);
  p.avisoDias??=7;p.avisoKm??=500;p.emitirAnticipado??=false;
  const insertion=document.createElement('section');insertion.className='plan-alert-settings';
  insertion.innerHTML='<h3>🔔 Anticipación, alertas y emisión</h3><div class="grid"><label class="field">Avisar con anticipación (días)<input type="number" min="0" value="'+p.avisoDias+'" id="plan-aviso-dias"></label><label class="field">Avisar con anticipación (km)<input type="number" min="0" value="'+p.avisoKm+'" id="plan-aviso-km"></label></div><label style="display:block;margin:9px 0"><input type="checkbox" id="plan-emitir-antes" '+(p.emitirAnticipado?'checked':'')+'> Emitir OT preventiva cuando entre en el período de aviso (sin esperar al vencimiento)</label><p class="muted">Si esta opción está desactivada, se muestran avisos y la emisión automática se produce al vencer. Requiere activar también «Programación automática».</p>';
