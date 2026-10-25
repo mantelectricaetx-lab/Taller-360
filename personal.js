@@ -50,7 +50,34 @@ function form(p={}){
  }catch(err){el.querySelector('#staff-msg').textContent='Error: '+err.message}
  };
 }
+
+async function seedTechnicians(){
+ const output=document.getElementById('staff-seed-status');
+ const button=document.getElementById('staff-seed');
+ if(!output||!button)return;
+ if(!confirm('¿Crear hasta 3 técnicos FICTICIOS en la base real de tu taller? Se identificarán como DEMO.'))return;
+ button.disabled=true;output.textContent='Comprobando registros existentes...';
+ try{
+  const taller=await ctx();
+  const examples=[
+   {nombre:'DEMO - Alejandro Morales',cargo:'Técnico mecánico',especialidad:'Diagnóstico y mecánica general',telefono:null,activo:true},
+   {nombre:'DEMO - Camila Rojas',cargo:'Técnico automotriz',especialidad:'Electricidad y electrónica',telefono:null,activo:true},
+   {nombre:'DEMO - Diego Fernández',cargo:'Técnico mecánico',especialidad:'Frenos y suspensión',telefono:null,activo:true}
+  ];
+  const {data:existing,error:queryError}=await sb.schema('rubinstein').from('personal').select('nombre').eq('taller_id',taller);
+  if(queryError)throw Error(queryError.message);
+  const names=new Set((existing||[]).map(x=>x.nombre.trim().toLowerCase()));
+  const newRows=examples.filter(x=>!names.has(x.nombre.toLowerCase())).map(x=>({...x,taller_id:taller}));
+  if(!newRows.length){output.textContent='Los tres técnicos DEMO ya existen. No se generaron duplicados.';return}
+  const {data,error}=await sb.schema('rubinstein').from('personal').insert(newRows).select('id,nombre');
+  if(error)throw Error(error.message);
+  output.textContent='Técnicos de prueba agregados: '+(data?.length||0)+'.';
+  await load();
+ }catch(err){output.textContent='Error: '+err.message}
+ finally{button.disabled=false}
+}
+
 window.T360Personnel={
- page(){return '<div class="card"><div class="row spread"><h3>Directorio de técnicos y personal</h3><button class="button primary" id="staff-new">+ Nuevo técnico</button></div><p class="muted">Personal registrado en Supabase para tu taller. Cada técnico podrá ser asignado como responsable de OT y subtareas.</p><div class="filter"><input id="staff-q" type="search" placeholder="Buscar nombre, cargo o especialidad"></div><div id="staff-data"></div></div><div id="staff-editor"></div>'},
- init(){document.getElementById('staff-new').onclick=()=>form();document.getElementById('staff-q').oninput=draw;load()}
+ page(){return '<div class="card"><div class="row spread"><h3>Directorio de técnicos y personal</h3><div class="row"><button class="button" id="staff-seed">+ Crear 3 técnicos DEMO</button><button class="button primary" id="staff-new">+ Nuevo técnico</button></div></div><p class="muted">Personal registrado en Supabase para tu taller. Cada técnico podrá ser asignado como responsable de OT y subtareas.</p><div class="filter"><input id="staff-q" type="search" placeholder="Buscar nombre, cargo o especialidad"></div><p id="staff-seed-status" role="status" class="muted"></p><div id="staff-data"></div></div><div id="staff-editor"></div>'},
+ init(){document.getElementById('staff-new').onclick=()=>form();document.getElementById('staff-seed').onclick=seedTechnicians;document.getElementById('staff-q').oninput=draw;load()}
 };
