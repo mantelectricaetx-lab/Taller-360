@@ -34,17 +34,17 @@ function otRenderTasks(){
 }
 function openOT(forVehicle=null,planId=null){
  otDraft={tasks:[],selectedVehicle:forVehicle||db.vehicles[0]?.id||null,selectedPlan:null};
- showModal('Crear orden de trabajo · Editor avanzado',\`<form id="ot-advanced-form" onsubmit="otSave(event)">
+ showModal('Crear orden de trabajo · Editor avanzado',`<form id="ot-advanced-form" onsubmit="otSave(event)">
  <div class="notice">Busca por patente, cliente, RUT, marca o modelo. El propietario se asocia automáticamente al vehículo.</div>
  <details open><summary>1 · Cliente y vehículo</summary><div>
- <div class="grid"><label class="field">Cliente / propietario<select id="ot-client-filter" onchange="otOptions()"><option value="">Todos los clientes</option>\${db.clients.map(c=>'<option value="'+c.id+'">'+esc(c.nombre)+'</option>').join('')}</select></label><label class="field">Búsqueda inteligente<input id="ot-vehicle-search" placeholder="Patente, nombre, RUT, marca o modelo" oninput="otOptions()"></label></div>
+ <div class="grid"><label class="field">Cliente / propietario<select id="ot-client-filter" onchange="otOptions()"><option value="">Todos los clientes</option>${db.clients.map(c=>'<option value="'+c.id+'">'+esc(c.nombre)+'</option>').join('')}</select></label><label class="field">Búsqueda inteligente<input id="ot-vehicle-search" placeholder="Patente, nombre, RUT, marca o modelo" oninput="otOptions()"></label></div>
  <div id="ot-vehicle-list" class="ot-options"></div><p class="notice"><b>Seleccionado:</b> <span id="ot-current-vehicle">Ninguno</span></p></div></details>
  <details open><summary>2 · Servicio, plan y programación</summary><div>
  <label class="field">Buscar plan por nombre, frecuencia o tarea<input id="ot-plan-search" placeholder="Aceite, 10.000 km, preventivo..." oninput="otPlanOptions()"></label><div id="ot-plan-list" class="ot-options"></div>
  <div class="grid"><label class="field">Descripción del servicio<input id="ot-servicio" required placeholder="Ej. Mantención, diagnóstico, reparación"></label><label class="field">Técnico responsable<input id="ot-tecnico" placeholder="Nombre del responsable"></label><label class="field">Prioridad<select id="ot-prioridad"><option>Normal</option><option>Media</option><option>Alta</option><option>Urgente</option></select></label><label class="field">Estado<select id="ot-estado"><option value="pendiente">Pendiente / Programada</option><option value="ejecucion">En ejecución</option><option value="revision">Control y revisión</option></select></label><label class="field">Fecha prevista<input id="ot-fecha" type="date" required></label><label class="field">Hora estimada<input id="ot-hora" type="time" value="09:00"></label></div></div></details>
  <details open><summary>3 · Subtareas y requerimientos (<span id="ot-task-count">0</span>)</summary><div>
  <p class="muted">Cada subtarea tiene su propio procedimiento, responsable, recursos, duración y obligatoriedad.</p><div id="ot-task-list"></div><button type="button" class="button primary" onclick="otAddTask()">+ Agregar subtarea</button></div></details>
- <div class="row spread" style="margin-top:18px"><button type="button" class="button" onclick="modal.close()">Cancelar</button><button type="submit" class="button primary">Crear orden de trabajo</button></div></form>\`);
+ <div class="row spread" style="margin-top:18px"><button type="button" class="button" onclick="modal.close()">Cancelar</button><button type="submit" class="button primary">Crear orden de trabajo</button></div></form>`);
  document.getElementById('ot-fecha').value=new Date().toLocaleDateString('en-CA');
  if(forVehicle)otPickVehicle(forVehicle);else if(otDraft.selectedVehicle)otPickVehicle(otDraft.selectedVehicle);
  otOptions();otPlanOptions();
