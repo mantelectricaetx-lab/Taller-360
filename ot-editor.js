@@ -10,14 +10,15 @@ function otOptions(){
 function otPickVehicle(id){otDraft.selectedVehicle=id;const v=vehicle(id);document.getElementById('ot-current-vehicle').textContent=v.patente+' · '+v.marca+' '+v.modelo+' · '+(client(v.clienteId)?.nombre||'');otOptions()}
 function otPlanOptions(){
  const q=normOT(document.getElementById('ot-plan-search').value);
- document.getElementById('ot-plan-list').innerHTML=db.plans.filter(p=>[p.nombre,p.tipo,p.intervalo,...p.tareas].some(x=>normOT(x).includes(q))).map(p=>'<button type="button" class="ot-option '+(otDraft.selectedPlan===p.id?'selected':'')+'" onclick="otPickPlan(\''+p.id+'\')">'+esc(p.nombre)+' <small>'+esc(p.tipo)+' / '+p.intervalo+'</small></button>').join('')+'<button type="button" class="ot-option" onclick="otPickPlan(null)">Sin plan · trabajo correctivo</button>';
+ document.getElementById('ot-plan-list').innerHTML=db.plans.filter(p=>[p.nombre,p.tipo,p.intervalo,...(p.tareas||p.subtareas?.map(t=>t.nombre)||[])].some(x=>normOT(x).includes(q))).map(p=>'<button type="button" class="ot-option '+(otDraft.selectedPlan===p.id?'selected':'')+'" onclick="otPickPlan(\''+p.id+'\')">'+esc(p.nombre)+' <small>'+esc(p.tipo)+' / '+p.intervalo+'</small></button>').join('')+'<button type="button" class="ot-option" onclick="otPickPlan(null)">Sin plan · trabajo correctivo</button>';
 }
 function otPickPlan(id){
  otDraft.selectedPlan=id;
  const p=db.plans.find(x=>x.id===id);
  if(p){
  document.getElementById('ot-servicio').value=p.nombre;
- if(confirm('¿Añadir las '+p.tareas.length+' subtareas del plan seleccionado?'))p.tareas.forEach(nombre=>otAddTask({nombre}));
+ const tasks=p.subtareas?.length?p.subtareas:(p.tareas||[]).map(nombre=>({nombre}));
+ if(confirm('¿Añadir las '+tasks.length+' subtareas del plan seleccionado?'))tasks.forEach(t=>otAddTask(t));
  }
  otPlanOptions();
 }
