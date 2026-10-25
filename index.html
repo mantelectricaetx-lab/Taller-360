@@ -54,4 +54,4 @@ function openOTDetail(id){let o=db.ots.find(x=>x.id===id),v=vehicle(o.vehicleId)
 function toggleTask(id,i,checked){let o=db.ots.find(x=>x.id===id);o.tareas[i].done=checked;save();openOTDetail(id)}
 function addTask(id){let s=$('task-input').value.trim();if(!s)return;db.ots.find(x=>x.id===id).tareas.push({nombre:s,done:false});save();openOTDetail(id)}
 save();render();
-</script><script type="module" src="./auth.js"></script><script src="./ot-editor.js"></script><script src="./ot-detail.js"></script></body></html>
+</script><script type="module" src="./auth.js"></script><script src="./ot-editor.js"></script><script src="./ot-detail.js"></script><script src="./autocomplete.js"></script></body></html>
