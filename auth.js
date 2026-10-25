@@ -41,10 +41,12 @@ async function refresh(){
  const {data:{user},error}=await supabase.auth.getUser();
  if(error||!user){status('Sin sesión Supabase',false);return}
  // La única consulta de datos es el propio usuario y su perfil.
- const {data:profile,error:pe}=await supabase.schema('rubinstein').from('usuarios').select('nombre,activo,perfil_id,perfiles(codigo,nombre)').eq('id',user.id).maybeSingle();
- if(pe){status('Sesión iniciada · perfil no disponible',true);console.warn('Perfil no disponible. Verifica Data API / RLS:',pe.message);return}
- if(!profile?.activo){status('Cuenta sin autorización',true);return}
- status((profile.nombre||user.email)+' · '+(profile.perfiles?.nombre||'Perfil asignado'),true);
+ const {data:profile,error:pe}=await supabase.schema('rubinstein').from('usuarios').select('nombre,activo,taller_id,perfil_id').eq('id',user.id).maybeSingle();
+ if(pe){status('Error de perfil: '+(pe.code||'API')+' · '+pe.message,true);console.warn('Consulta de usuario:',pe);return}
+ if(!profile){status('Cuenta sin ficha visible (RLS)',true);return}
+ if(!profile.activo){status('Cuenta inactiva',true);return}
+ if(!profile.taller_id){status('Cuenta sin taller asignado',true);return}
+ status((profile.nombre||user.email)+' · Sesión activa',true);
 }
 supabase.auth.onAuthStateChange(()=>{ /* La actualización del perfil se hace explícitamente tras cada acción */ });
 refresh();
