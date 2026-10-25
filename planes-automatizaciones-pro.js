@@ -49,8 +49,10 @@ window.planAutomationOpen=function(id){
 const oldPlans=window.plansPage;
 window.plansPage=function(){
  const current=oldPlans();
- const target='<button class="button" onclick="planOpen(';
- return current.replaceAll(target,'<button class="button" onclick="planAutomationOpen('); 
+ let i=0;
+ return current.replace(/(<button class="button" onclick="planOpen\([^<]+<\/button>)/g,match=>{
+  const p=db.plans[i++];return match+(p?' <button type="button" class="button" onclick="planAutomationOpen(&quot;'+p.id+'&quot;)">⚙ Automatizaciones</button>':'');
+ });
 };
 const style=document.createElement('style');style.textContent='.auto-editor{font-size:13px}.auto-tabs{display:flex;gap:6px;overflow:auto;position:sticky;top:-20px;background:white;padding:12px 0;z-index:2}.auto-tabs a{white-space:nowrap;border:1px solid #dce5f2;border-radius:20px;padding:8px 12px;color:#294b82;text-decoration:none}.auto-section{border:1px solid #dce5f2;border-radius:12px;padding:16px;margin:15px 0;scroll-margin-top:75px}.auto-section h3{margin:0 0 12px}.auto-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}.auto-check{display:flex;gap:9px;align-items:center;padding:9px;border:1px solid #e0e7f1;border-radius:9px;background:#f9fbfe}.auto-check input{flex:none}.auto-section .field{margin-bottom:10px}';document.head.append(style);
 })();
