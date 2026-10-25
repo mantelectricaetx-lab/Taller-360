@@ -1,0 +1,1 @@
+window.otExtraSummary=function(t){const h=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));return Object.entries(t.extras||{}).map(([k,a])=>a.length?'<p><b>'+h(k)+':</b> '+a.map(x=>h(x.descripcion||x.nombre)+' · '+Number(x.cantidad||0)+(x.costo?' · $'+Number(x.costo).toLocaleString('es-CL'):'')).join('; ')+'</p>':'').join('')};
