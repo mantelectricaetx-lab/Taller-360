@@ -52,14 +52,14 @@ function openOT(forVehicle=null,planId=null){
  window.T360TechSearch?.render('ot-tecnico','ot-tecnico-results',p=>{otDraft.tecnicoId=p?.id||null});
  if(planId)otPickPlan(planId);
 }
-function otSave(event){
+async function otSave(event){
  event.preventDefault();
  if(!otDraft.selectedVehicle){alert('Selecciona un vehículo');return}
  if(otDraft.tasks.some(x=>!x.nombre.trim())){alert('Cada subtarea necesita un nombre');return}
- const o={id:'OT-'+Date.now().toString().slice(-9),vehicleId:otDraft.selectedVehicle,servicio:document.getElementById('ot-servicio').value.trim(),prioridad:document.getElementById('ot-prioridad').value,estado:document.getElementById('ot-estado').value,fecha:document.getElementById('ot-fecha').value,tecnico:document.getElementById('ot-tecnico').value,tareas:otDraft.tasks.map(({id,...t})=>({...t}))};
+ const o={id:'OT-'+Date.now().toString().slice(-9),vehicleId:otDraft.selectedVehicle,servicio:document.getElementById('ot-servicio').value.trim(),prioridad:document.getElementById('ot-prioridad').value,estado:document.getElementById('ot-estado').value,fecha:document.getElementById('ot-fecha').value,tecnico:document.getElementById('ot-tecnico').value,tareas:otDraft.tasks.map(t=>({...t}))};
  if(document.getElementById('ot-tecnico').value.trim()&&!otDraft.tecnicoId){alert('Selecciona un técnico de los resultados de Supabase.');return}
  if(otDraft.tasks.some(t=>t.responsable.trim()&&!t.responsableId)){alert('Selecciona los responsables de subtareas desde Supabase.');return}
  o.tecnicoId=otDraft.tecnicoId;
  if(!o.servicio){alert('Describe el servicio');return}
- db.ots.unshift(o);save();modal.close();goto('ot');openOTDetail(o.id);
+ db.ots.unshift(o);save();try{await window.T360OTCloud.save(o)}catch(err){alert('La OT se guardó solo en este navegador. '+err.message)}modal.close();goto('ot');openOTDetail(o.id);
 }
