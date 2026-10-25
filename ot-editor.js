@@ -24,7 +24,7 @@ function otPickPlan(id){
 }
 function otAddTask(task={}){
  const id='t'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
- otDraft.tasks.push({id,nombre:task.nombre||'',detalle:task.detalle||'',recursos:task.recursos||'',responsable:task.responsable||'',minutos:task.minutos||0,obligatoria:task.obligatoria??true,done:false});
+ otDraft.tasks.push({id,nombre:task.nombre||'',detalle:task.detalle||'',recursos:task.recursos||'',responsable:task.responsable||'',minutos:task.minutos||0,obligatoria:task.obligatoria??true,asignaciones:task.asignaciones?JSON.parse(JSON.stringify(task.asignaciones)):undefined,done:false});
  otRenderTasks();
 }
 function otRemoveTask(id){otDraft.tasks=otDraft.tasks.filter(t=>t.id!==id);otRenderTasks()}
