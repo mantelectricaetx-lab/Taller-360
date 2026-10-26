@@ -30,4 +30,16 @@
  .calendar{min-width:620px}
  #app{min-width:0}
 }
-#mobile-menu-toggle,#mobile-menu-backdrop{display:none!important}
+/* El menú compacto sigue visible; el botón alterna etiquetas sin ocultar los iconos */
+#mobile-menu-toggle{display:none}
+#mobile-menu-backdrop{display:none}
+@media(max-width:700px){
+ body.mobile-menu-open aside{width:min(235px,75vw)!important;box-shadow:8px 0 25px #14213d40}
+ body.mobile-menu-open aside .brand{font-size:20px!important;text-align:left}
+ body.mobile-menu-open aside .brand small{display:block!important}
+ body.mobile-menu-open aside .nav .navtext{display:inline!important}
+ body.mobile-menu-open aside .group{display:block!important}
+ body.mobile-menu-open aside .nav{justify-content:flex-start!important;font-size:14px}
+ #mobile-menu-toggle{display:flex;position:fixed;left:10px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:1551;align-items:center;justify-content:center;width:44px;height:44px;background:var(--nav);color:#c4d1eb;border:1px solid #315385;border-radius:9px;font-size:21px;box-shadow:0 2px 12px #1e304328}
+ body.mobile-menu-open #mobile-menu-backdrop{display:block;position:fixed;inset:0;background:#101c3570;z-index:90}
+}
