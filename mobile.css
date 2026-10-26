@@ -43,3 +43,19 @@
  #mobile-menu-toggle{display:flex;position:fixed;left:10px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:1551;align-items:center;justify-content:center;width:44px;height:44px;background:var(--nav);color:#c4d1eb;border:1px solid #315385;border-radius:9px;font-size:21px;box-shadow:0 2px 12px #1e304328}
  body.mobile-menu-open #mobile-menu-backdrop{display:block;position:fixed;inset:0;background:#101c3570;z-index:90}
 }
+
+/* Menú hamburguesa realmente emergente en pantallas pequeñas */
+@media(max-width:700px){
+ aside{width:min(270px,85vw)!important;transform:translateX(-110%)!important;transition:transform .2s ease!important;z-index:1500!important;box-shadow:9px 0 28px #14213d33!important}
+ body.mobile-menu-open aside{transform:translateX(0)!important}
+ aside .brand{font-size:20px!important;text-align:left!important}
+ aside .brand img{max-height:95px!important}
+ aside .brand small{display:block!important}
+ aside .nav .navtext{display:inline!important}
+ aside .group{display:block!important}
+ aside .nav{justify-content:flex-start!important;font-size:14px!important;gap:11px!important;padding:11px!important}
+ main{margin-left:0!important;max-width:100vw!important;padding:12px!important}
+ #mobile-menu-toggle{position:fixed!important;top:calc(10px + env(safe-area-inset-top))!important;left:10px!important;bottom:auto!important;width:43px!important;height:43px!important;border-radius:8px!important;z-index:1600!important}
+ body.mobile-menu-open #mobile-menu-backdrop{display:block!important;z-index:1400!important}
+ .top{padding-left:45px}
+}
