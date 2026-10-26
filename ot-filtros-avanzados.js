@@ -4,10 +4,11 @@ const state={open:'',text:{ot:'',patente:'',cliente:'',servicio:'',responsable:'
 const groups=[['ot','▤','N° OT'],['patente','▣','Vehículo'],['cliente','♙','Cliente'],['servicio','⚒','Servicio'],['estado','◉','Estado'],['prioridad','⚑','Prioridad'],['responsable','♧','Responsable'],['fecha','▦','Fechas'],['programacion','◷','Programación'],['atraso','⚠','Atrasos']];
 const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const todayChile=()=>{const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Santiago',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const v=Object.fromEntries(parts.map(p=>[p.type,p.value]));return v.year+'-'+v.month+'-'+v.day};
 const dateOnly=s=>{const t=String(s||'');return /^\d{4}-\d{2}-\d{2}/.test(t)?t.slice(0,10):''};
 const datum=(o,k)=>k==='patente'?vehicle(o.vehicleId)?.patente||'':k==='cliente'?client(vehicle(o.vehicleId)?.clienteId)?.nombre||'':k==='responsable'?(o.responsableNombre||o.responsable||o.tecnico||o.tecnicoNombre||''):String(o[k]??'');
 const dateValue=o=>dateOnly(o[state.dateField]|| (state.dateField==='programacion'?(o.fechaProgramada||o.fechaProgramacion||o.fecha):''));
-const overdue=o=>{const d=dateOnly(o.fechaProgramada||o.fechaProgramacion||o.fecha);return d&&d<new Date().toLocaleDateString('en-CA',{timeZone:'America/Santiago'})&&!['terminada','cerrada','finalizada','cancelada'].includes(norm(o.estado))};
+const overdue=o=>{const d=dateOnly(o.fechaProgramada||o.fechaProgramacion||o.fecha);return d&&d<todayChile()&&!['terminada','cerrada','finalizada','cancelada'].includes(norm(o.estado))};
 const monday=s=>{if(!s)return '';const d=new Date(s+'T12:00:00');if(Number.isNaN(d.getTime()))return '';const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const check=o=>{
  for(const [k,v] of Object.entries(state.text))if(v.trim()&&!norm(datum(o,k)).includes(norm(v.trim())))return false;
@@ -19,7 +20,7 @@ const check=o=>{
  if(state.from){if(!date)return false; if(state.operator==='eq'&&date!==state.from)return false;if(state.operator==='gt'&&date<=state.from)return false;if(state.operator==='lt'&&date>=state.from)return false;if(state.operator==='gte'&&date<state.from)return false;if(state.operator==='lte'&&date>state.from)return false;if(state.operator==='between'&&date<state.from)return false}
  if(state.operator==='between'&&state.to&&(!date||date>state.to))return false;
  if(state.schedule==='week'&&state.week&&monday(dateOnly(o.fechaProgramada||o.fechaProgramacion||o.fecha))!==monday(state.week))return false;
- if(state.schedule==='today'&&dateOnly(o.fechaProgramada||o.fechaProgramacion||o.fecha)!==new Date().toLocaleDateString('en-CA',{timeZone:'America/Santiago'}))return false;
+ if(state.schedule==='today'&&dateOnly(o.fechaProgramada||o.fechaProgramacion||o.fecha)!==todayChile())return false;
  if(state.schedule==='unscheduled'&&(o.fechaProgramada||o.fechaProgramacion||o.fecha))return false;
  return true;
 };
