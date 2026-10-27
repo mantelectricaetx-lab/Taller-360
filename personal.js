@@ -25,17 +25,19 @@ async function load(){
  draw();
  }catch(err){container.innerHTML='<div class="notice">'+clean(err.message)+'</div>'}
 }
+const photoKey=id=>'t360-personal-photo:'+id;
+const photo=id=>{try{return localStorage.getItem(photoKey(id))||''}catch{return ''}};
 function draw(){
  const container=document.getElementById('staff-data');if(!container)return;
  const q=(document.getElementById('staff-q')?.value||'').toLowerCase();
  const rows=personnel.filter(p=>[p.nombre,p.cargo,p.especialidad,p.telefono].some(x=>String(x||'').toLowerCase().includes(q)));
- container.innerHTML='<p class="muted">'+rows.length+' trabajadores encontrados</p><div class="scroll"><table><thead><tr><th>Nombre</th><th>Cargo</th><th>Especialidad</th><th>Teléfono</th><th>Estado</th><th></th></tr></thead><tbody>'+rows.map(p=>'<tr><td>'+clean(p.nombre)+'</td><td>'+clean(p.cargo)+'</td><td>'+clean(p.especialidad)+'</td><td>'+clean(p.telefono)+'</td><td>'+ (p.activo?'Activo':'Inactivo')+'</td><td><button class="button" data-edit="'+clean(p.id)+'">Editar</button></td></tr>').join('')+'</tbody></table></div>';
+ container.innerHTML='<p class="muted">'+rows.length+' trabajadores encontrados</p><div class="scroll"><table><thead><tr><th>Foto</th><th>Nombre</th><th>Cargo</th><th>Especialidad</th><th>Teléfono</th><th>Estado</th><th></th></tr></thead><tbody>'+rows.map(p=>'<tr><td>'+(photo(p.id)?'<img src="'+clean(photo(p.id))+'" alt="Foto" style="width:42px;height:42px;border-radius:50%;object-fit:cover">':'<span style="display:inline-grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#e8eef8">👤</span>')+'</td><td>'+clean(p.nombre)+'</td><td>'+clean(p.cargo)+'</td><td>'+clean(p.especialidad)+'</td><td>'+clean(p.telefono)+'</td><td>'+ (p.activo?'Activo':'Inactivo')+'</td><td><button class="button" data-edit="'+clean(p.id)+'">Editar</button></td></tr>').join('')+'</tbody></table></div>';
  container.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>form(personnel.find(p=>p.id===b.dataset.edit)));
 }
 function form(p={}){
  const editing=!!p.id;
  const el=document.getElementById('staff-editor');
- el.innerHTML='<div class="card"><div class="row spread"><h3>'+(editing?'Editar':'Nuevo')+' trabajador</h3><button class="button" type="button" id="staff-close">✕</button></div><form id="staff-form"><div class="grid">'+[['nombre','Nombre completo'],['cargo','Cargo'],['especialidad','Especialidad'],['telefono','Teléfono']].map(([k,l])=>'<label class="field">'+l+'<input name="'+k+'" '+(k==='nombre'?'required':'')+' value="'+clean(p[k]||'')+'"></label>').join('')+'</div><label class="field">Estado<select name="activo"><option value="true" '+(p.activo!==false?'selected':'')+'>Activo</option><option value="false" '+(p.activo===false?'selected':'')+'>Inactivo</option></select></label><p id="staff-msg" role="status"></p><button class="button primary" type="submit">Guardar trabajador</button></form></div>';
+ el.innerHTML='<div class="card"><div class="row spread"><h3>'+(editing?'Editar':'Nuevo')+' trabajador</h3><button class="button" type="button" id="staff-close">✕</button></div><form id="staff-form"><div class="grid">'+[['nombre','Nombre completo'],['cargo','Cargo'],['especialidad','Especialidad'],['telefono','Teléfono']].map(([k,l])=>'<label class="field">'+l+'<input name="'+k+'" '+(k==='nombre'?'required':'')+' value="'+clean(p[k]||'')+'"></label>').join('')+'</div><label class="field">Fotografía de trabajador (JPEG, PNG o WebP, máximo 180 KB)<input type="file" name="foto" accept="image/png,image/jpeg,image/webp"></label><p class="muted">La imagen se conservará en este navegador, no en Supabase.</p><label class="field">Estado<select name="activo"><option value="true" '+(p.activo!==false?'selected':'')+'>Activo</option><option value="false" '+(p.activo===false?'selected':'')+'>Inactivo</option></select></label><p id="staff-msg" role="status"></p><button class="button primary" type="submit">Guardar trabajador</button></form></div>';
  el.querySelector('#staff-close').onclick=()=>el.replaceChildren();
  el.querySelector('form').onsubmit=async e=>{
  e.preventDefault();const f=e.target;const get=k=>f.elements.namedItem(k).value;const payload={nombre:get('nombre').trim(),cargo:get('cargo').trim(),especialidad:get('especialidad').trim(),telefono:get('telefono').trim(),activo:get('activo')==='true'};
@@ -46,6 +48,7 @@ function form(p={}){
  else response=await sb.schema('rubinstein').from('personal').insert({...payload,taller_id:myTaller}).select('id');
  if(response.error)throw Error(response.error.message);
  if(!response.data?.length)throw Error('Sin cambios. Verifica permisos del usuario.');
+ const pic=f.elements.namedItem('foto')?.files?.[0];if(pic){if(pic.size>180000)throw Error('La foto supera 180 KB. Reduce su tamaño.');if(!['image/jpeg','image/png','image/webp'].includes(pic.type))throw Error('Formato de foto no permitido');const dataUrl=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(fr.result);fr.onerror=reject;fr.readAsDataURL(pic)});try{localStorage.setItem(photoKey(response.data[0].id),dataUrl)}catch{throw Error('No se pudo almacenar la foto en este navegador.')}}
  el.replaceChildren();await load();
  }catch(err){el.querySelector('#staff-msg').textContent='Error: '+err.message}
  };
